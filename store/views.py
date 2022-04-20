@@ -7,69 +7,42 @@ from .serializers import CollectionSeralizer, ProductSeralizer
 from rest_framework import status
 from rest_framework.views import APIView
 
+from rest_framework.mixins import ListModelMixin, CreateModelMixin
+from rest_framework.generics import ListCreateAPIView
+
+from store import serializers
 
 
-class ProductList(APIView):
+
+class ProductList(ListCreateAPIView):
     
-    def get(self,request):
-        queryset = Product.objects.select_related('collection').all()
-        serializer = ProductSeralizer(queryset, many=True, context={'request':request})
-        return Response(serializer.data)
+    queryset = Product.objects.select_related('collection').all()
+    serializer_class = ProductSeralizer
     
-    def post(self,request):
-        serializer = ProductSeralizer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        
-        return Response(serializer.data, status=status.HTTP_201_CREATED)       
-        
-
-
-
-
-
-
-
-
-
-# # Create your views here.
-
-# @api_view(['GET', 'POST'])
-# def product_list(request):
+    # def get_queryset(self):
+    #     return self.queryset
     
-#     if request.method == 'GET':
+    # def get_serializer_class(self):
+    #     return ProductSeralizer
+    
+    def get_view_description(self):
+        return {'request':self.request}
+    
+
+# class ProductList(APIView):
+    
+#     def get(self,request):
 #         queryset = Product.objects.select_related('collection').all()
-#         #queryset = Product.objects.all() lazy loading
 #         serializer = ProductSeralizer(queryset, many=True, context={'request':request})
 #         return Response(serializer.data)
     
-#     # elif request.method == 'POST':
-#     #     serializer = ProductSeralizer(data=request.data)
-#     #     if serializer.is_valid():
-#     #         serializer.validated_data
-#     #         return Response("ok")
-#     #     else:
-#     #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     elif request.method == 'POST':
+#     def post(self,request):
 #         serializer = ProductSeralizer(data=request.data)
 #         serializer.is_valid(raise_exception=True)
 #         serializer.save()
-#         #serializer.validated_data
         
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-
-# @api_view()
-# def product_detail(request, id):
-#     try:
-#         product = Product.objects.get(pk=id)
-#         serializer = ProductSeralizer(product)
-#         return Response(serializer.data)
-#     except Product.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)       
+        
 
 class ProductDetail(APIView):
     
@@ -96,7 +69,45 @@ class ProductDetail(APIView):
         
         product.delete()
         
-        return Response(status=status.HTTP_204_NO_CONTENT)   
+        return Response(status=status.HTTP_204_NO_CONTENT) 
+
+
+
+@api_view(['GET', 'POST'])
+def product_list(request):
+    
+    if request.method == 'GET':
+        queryset = Product.objects.select_related('collection').all()
+        #queryset = Product.objects.all() lazy loading
+        serializer = ProductSeralizer(queryset, many=True, context={'request':request})
+        return Response(serializer.data)
+    
+    # elif request.method == 'POST':
+    #     serializer = ProductSeralizer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.validated_data
+    #         return Response("ok")
+    #     else:
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'POST':
+        serializer = ProductSeralizer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        #serializer.validated_data
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view()
+def product_detail(request, id):
+    try:
+        product = Product.objects.get(pk=id)
+        serializer = ProductSeralizer(product)
+        return Response(serializer.data)
+    except Product.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+  
 
 
 
