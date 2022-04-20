@@ -5,33 +5,59 @@ from rest_framework.response import Response
 from .models import Product, Collection
 from .serializers import CollectionSeralizer, ProductSeralizer
 from rest_framework import status
+from rest_framework.views import APIView
 
-# Create your views here.
 
-@api_view(['GET', 'POST'])
-def product_list(request):
+
+class ProductList(APIView):
     
-    if request.method == 'GET':
+    def get(self,request):
         queryset = Product.objects.select_related('collection').all()
-        #queryset = Product.objects.all() lazy loading
         serializer = ProductSeralizer(queryset, many=True, context={'request':request})
         return Response(serializer.data)
     
-    # elif request.method == 'POST':
-    #     serializer = ProductSeralizer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.validated_data
-    #         return Response("ok")
-    #     else:
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'POST':
+    def post(self,request):
         serializer = ProductSeralizer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        #serializer.validated_data
         
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)       
+        
+
+
+
+
+
+
+
+
+
+# # Create your views here.
+
+# @api_view(['GET', 'POST'])
+# def product_list(request):
+    
+#     if request.method == 'GET':
+#         queryset = Product.objects.select_related('collection').all()
+#         #queryset = Product.objects.all() lazy loading
+#         serializer = ProductSeralizer(queryset, many=True, context={'request':request})
+#         return Response(serializer.data)
+    
+#     # elif request.method == 'POST':
+#     #     serializer = ProductSeralizer(data=request.data)
+#     #     if serializer.is_valid():
+#     #         serializer.validated_data
+#     #         return Response("ok")
+#     #     else:
+#     #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     elif request.method == 'POST':
+#         serializer = ProductSeralizer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         #serializer.validated_data
+        
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 
@@ -43,6 +69,36 @@ def product_list(request):
 #         return Response(serializer.data)
 #     except Product.DoesNotExist:
 #         return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class ProductDetail(APIView):
+    
+    def get(self,request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        
+        serializer = ProductSeralizer(product, context={'request':request})
+        return Response(serializer.data)    
+
+    
+    def put(self,request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        serializer = ProductSeralizer(product, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        
+        return Response(serializer.data)
+
+
+    def delete(self,request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        if product.orderitem_set.count() > 0:
+            return Response({'error': "cant delete"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        
+        product.delete()
+        
+        return Response(status=status.HTTP_204_NO_CONTENT)   
+
+
 
 
 @api_view(['GET','PUT','DELETE'])
