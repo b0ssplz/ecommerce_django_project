@@ -112,3 +112,11 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
     list_display = ['id', 'placed_at', 'customer']
     #autocomplete_fields =['customer']
+    
+    
+# ------- Review ----------
+
+@admin.register(models.Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ['id','date', 'name', 'description', 'product'] 
+    #autocomplete_fields =['customer']

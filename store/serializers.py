@@ -1,11 +1,17 @@
 from rest_framework import serializers
 from decimal import Decimal
-from store.models import Product, Collection
+from store.models import Product, Collection, Review
 
 
 # class CollectionSeralizer(serializers.Serializer):
 #     id = serializers.IntegerField()
 #     title = serializers.CharField()
+    
+    
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id','date', 'name', 'description', 'product']    
     
 class CollectionSeralizer(serializers.ModelSerializer):
     class Meta:
