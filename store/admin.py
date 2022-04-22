@@ -120,3 +120,17 @@ class OrderAdmin(admin.ModelAdmin):
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ['id','date', 'name', 'description', 'product'] 
     #autocomplete_fields =['customer']
+    
+# ------ Cart ----------
+
+class CartItemInline(admin.TabularInline):
+    model = models.CartItem
+    min_num = 1
+    max_num = 5
+    extra = 0
+
+@admin.register(models.Cart)
+class CartAdmin(admin.ModelAdmin):
+    inlines = [CartItemInline]
+    list_display = ['id','created_at'] 
+    

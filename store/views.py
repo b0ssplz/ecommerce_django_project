@@ -10,18 +10,35 @@ from rest_framework.views import APIView
 
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.viewsets import ModelViewSet    
+from rest_framework.viewsets import ModelViewSet, GenericViewSet    
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
-
 from store import serializers
 
-from .models import Product, Collection, OrderItem, Review
-from .serializers import CollectionSeralizer, ProductSeralizer, ReviewSerializer
+from .models import Product, Collection, OrderItem, Review, Cart
+from .serializers import CollectionSeralizer, ProductSeralizer, ReviewSerializer, CartSerializer
 from .filters import ProductFilter
 
-# ------------- Viewsets -------------------
+# ------------- Viewsets --------------------
 
+
+class CartViewSet(ModelViewSet):
+    queryset = Cart.objects.all()
+    serializer_class = CartSerializer
+     
+    def get_serializer_context(self):
+        return {'request': self.request}
+
+# class CartViewSet(CreateModelMixin, GenericViewSet):
+#     queryset = Cart.objects.all()
+#     serializer_class = CartSerializer
+
+
+#     def get_serializer_context(self):
+#         return {'request': self.request} 
+
+#     def get_queryset(self):
+#         return Product.objects.select_related.all()
 
 
 class ReviewViewSet(ModelViewSet):
